@@ -46,7 +46,7 @@ citations <- tibble(longname = c('De Mutsert et al. 2017',
   mutate(superscript = as.character(1:n())) %>%
   bind_rows(tibble(longname = c('Leading stanza', 'Solved by Rpath', 'Sensitivity of results to this paramter was minimal', ''), 
                    shortname = c('lead', 'rpath', 'sens', ''),
-                   superscript = c('+', '*', '\at', '')))
+                   superscript = c('+', '*', '@', '')))
 
 # These are shortcuts to save my poor right pinkie
 rpath. <- 'rpath'
