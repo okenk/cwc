@@ -1,0 +1,141 @@
+---
+output: word_document
+---
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(warn = -1)
+library(Rpath)
+library(here)
+library(dplyr)
+library(ggplot2)
+source(here('R', 'ecopath_inputs.R'))
+```
+
+```{r to.kable, include=FALSE}
+to.kable <- print(test) %>%
+  as_tibble() %>%
+  mutate_at(vars(TL:Removals), signif, digits=3) %>%
+  select(-type) %>%
+  mutate(Group = gsub(pattern = 'croaker.spot.perch', replacement = 'sm.sciaenids', 
+                      x = Group)) %>%
+  mutate(Group = gsub(pattern = '\\.', replacement = ' ', x = Group)) %>%
+  mutate(Group = stringr::str_to_title(Group)) %>%
+  filter(Group != 'Fishery')
+to.kable$Group[which(to.kable$Group == 'Sav')] <- 'SAV'
+```
+
+```{r citations, include = FALSE}
+citations <- tibble(longname = c('De Mutsert et al. 2017',
+                                 'C.W. Martin 2022, expert opinion',
+                                 'Murie et al. 2009',
+                                 'Pauly, 1998',
+                                 'Sage et al. 1972',
+                                 'De Mutsert et al. 2016',
+                                 'Geers, 2012',
+                                 'Deehr et al. 2014',
+                                 'McDonald et al. 2017',
+                                 'Bejarano et al. 2017',
+                                 'Wolff et al. 2000',
+                                 'Lin and Mendelssohn, 2012',
+                                 'Hill and Roberts, 2017')) %>%
+  mutate(firstletter = stringr::str_to_lower(stringr::str_sub(longname, 1, 1)),
+         year = stringr::str_extract(longname, '\\d\\d\\d\\d'),
+         shortname = paste0(firstletter, year)) %>%
+   select(-firstletter, -year) %>%
+  mutate(superscript = as.character(1:n())) %>%
+  bind_rows(tibble(longname = c('Leading stanza', 'Solved by Rpath', 'Sensitivity of results to this paramter was minimal', ''), 
+                   shortname = c('lead', 'rpath', 'sens', ''),
+                   superscript = c('+', '*', '\at', '')))
+
+# These are shortcuts to save my poor right pinkie
+rpath. <- 'rpath'
+lead <- 'lead'
+d2017 <- 'd2017'
+```
+
+```{r cite.mat, include=FALSE}
+cite.mat <- matrix('', nrow = nrow(to.kable), ncol = 6, 
+                       dimnames = list(to.kable$Group,
+                                       c('group', 'biomass', 'pb', 'qb', 'ee', 'f')))
+cite.mat['Juv Shark',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Adu Shark',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Juv R Drum',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Adu R Drum',] <- c('', rpath., d2017, rpath., rpath., '')
+cite.mat['Juv Seatrout',] <- c('', rpath., d2017, rpath., rpath., '')
+cite.mat['Adu Seatrout',] <- c(lead, d2017, d2017, d2017, rpath.,
+                                   d2017)
+cite.mat['Juv B Drum',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Adu B Drum',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Juv Catfish',] <- c('', rpath., d2017, rpath., rpath., '')
+cite.mat['Adu Catfish',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Juv Sm Sciaenids',] <- c(lead, d2017, d2017, d2017, rpath., '')
+cite.mat['Adu Sm Sciaenids',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Juv Sheepshead',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Adu Sheepshead',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Juv Flounder',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Adu Flounder',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Juv Pinfish',] <- c('', rpath., d2017,rpath., rpath., '')
+cite.mat['Adu Pinfish',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Juv Menhaden',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Adu Menhaden',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Juv Mullet',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Adu Mullet',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Anchovy Silverside',] <- c('', d2017, d2017, d2017, rpath., d2017)
+cite.mat['Gar',] <- c('', 'c2022', 'm2009', 'p1998', rpath., 'c2022')
+cite.mat['Stingray',] <- c('', 'c2022', 's1972', 'd2016', rpath., '')
+cite.mat['Diving Birds',] <- c('', 'g2012', 'g2012', 'g2012', rpath., '')
+cite.mat['Pelicans',] <- c('', 'g2012', 'g2012', 'g2012', rpath., '')
+cite.mat['Marsh Birds',] <- c('', 'd2014', 'd2014', 'd2014', rpath., '')
+cite.mat['Dolphins',] <- c('', 'm2017', 'm2017', 'b2017', rpath., '')
+cite.mat['Killifishes',] <- c('', d2017, d2017, d2017, rpath., '')
+cite.mat['Juv Panaeids',] <- c(lead, d2017, d2017, d2017, rpath., '')
+cite.mat['Adu Panaeids',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Juv Blue Crab',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Adu Blue Crab',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Carn Insects',] <- c('', rpath., 'w2000', 'w2000', 'sens', '')
+cite.mat['Grass Shrimp',] <- c('', d2017, d2017, d2017, rpath., '')
+cite.mat['Other Crabs',] <- c('', d2017, d2017, d2017, rpath., '')
+cite.mat['Herb Insects',] <- c('', rpath., 'w2000', 'w2000', 'sens', '')
+cite.mat['Zooplankton',] <- c('', d2017, d2017, d2017, rpath., '')
+cite.mat['Oyster Spat',] <- c('', rpath., d2017, rpath., rpath., '')
+cite.mat['Seed Oyster',] <- c('', rpath., d2017, rpath., rpath., '')
+cite.mat['Sack Oyster',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
+cite.mat['Oyster Drill',] <- c('', d2017, d2017, d2017, rpath., d2017)
+cite.mat['Mollusks',] <- c('', d2017, d2017, d2017, rpath., '')
+cite.mat['Benthic Inverts',] <- c('', d2017, d2017, d2017, rpath., '')
+cite.mat['Marsh Plants',] <- c('', 'l2012', 'h2017', '', rpath., '')
+cite.mat['SAV',] <- c('', d2017, d2017, '', rpath., '')
+cite.mat['Benthic Microalgae',] <- c('', d2017, d2017, '', rpath., '')
+cite.mat['Phytoplankton',] <- c('', d2017, d2017, '', rpath., '')
+cite.mat['Detritus',] <- rep('', 6)
+```
+
+Table 2 Ecopath model summary.
+
+```{r table2, echo=FALSE}
+apply(cite.mat, 2, function(x) 
+  # replace shorthand key with the appropriate superscript
+  citations$superscript[match(x, citations$shortname)]) %>%
+  as_tibble() %>% 
+  # paste superscripts into the main group info table
+  purrr::map2_dfc(.x = select(to.kable, -TL, -GE), .y = .,
+                  .f = ~ glue::glue('{.x}$^{.y}$')) %>% 
+  # remove carrots to nowhere
+  mutate(across(.cols = everything(), 
+                ~ stringr::str_replace(., pattern = '\\$\\^\\$', 
+                                       replacement = ''))) %>%
+  mutate(TL = to.kable$TL, GE = to.kable$GE) %>%
+  relocate(TL, .after = Group) %>%
+  relocate(GE, .after = EE) %>%
+  rename(TP = TL,
+         `Biomass\\\n(g/m$^2$)` = Biomass,
+         `Removals\\\n(g/m$^2$)` = Removals) %>%
+  knitr::kable()
+
+citations %>%
+  slice(-n()) %>%
+  mutate(out = glue::glue('$^{superscript}$ {longname}')) %>%
+  select(out) %>%
+  knitr::kable(col.names = '')
+```
