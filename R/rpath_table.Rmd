@@ -19,6 +19,12 @@ to.kable <- print(test) %>%
   select(-type) %>%
   mutate(Group = gsub(pattern = 'croaker.spot.perch', replacement = 'sm.sciaenids', 
                       x = Group)) %>%
+  mutate(Group = gsub(pattern = 'diving.birds', replacement = 'Gulls & Terns', 
+                      x = Group)) %>%
+  mutate(Group = gsub(pattern = 'marsh.birds', replacement = 'wading.birds', 
+                      x = Group)) %>%
+  mutate(Group = gsub(pattern = 'panaeid', replacement = 'penaeid', 
+                      x = Group)) %>%
   mutate(Group = gsub(pattern = '\\.', replacement = ' ', x = Group)) %>%
   mutate(Group = stringr::str_to_title(Group)) %>%
   filter(Group != 'Fishery')
@@ -84,13 +90,13 @@ cite.mat['Adu Mullet',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
 cite.mat['Anchovy Silverside',] <- c('', d2017, d2017, d2017, rpath., d2017)
 cite.mat['Gar',] <- c('', 'c2022', 'm2009', 'p1998', rpath., 'c2022')
 cite.mat['Stingray',] <- c('', 'c2022', 's1972', 'd2016', rpath., '')
-cite.mat['Diving Birds',] <- c('', 'g2012', 'g2012', 'g2012', rpath., '')
+cite.mat['Gulls & Terns',] <- c('', 'g2012', 'g2012', 'g2012', rpath., '')
 cite.mat['Pelicans',] <- c('', 'g2012', 'g2012', 'g2012', rpath., '')
 cite.mat['Marsh Birds',] <- c('', 'd2014', 'd2014', 'd2014', rpath., '')
 cite.mat['Dolphins',] <- c('', 'm2017', 'm2017', 'b2017', rpath., '')
 cite.mat['Killifishes',] <- c('', d2017, d2017, d2017, rpath., '')
-cite.mat['Juv Panaeids',] <- c(lead, d2017, d2017, d2017, rpath., '')
-cite.mat['Adu Panaeids',] <- c('', rpath., d2017, rpath., rpath., d2017)
+cite.mat['Juv Penaeids',] <- c(lead, d2017, d2017, d2017, rpath., '')
+cite.mat['Adu Penaeids',] <- c('', rpath., d2017, rpath., rpath., d2017)
 cite.mat['Juv Blue Crab',] <- c(lead, d2017, d2017, d2017, rpath., d2017)
 cite.mat['Adu Blue Crab',] <- c('', rpath., d2017, rpath., rpath., d2017)
 cite.mat['Carn Insects',] <- c('', rpath., 'w2000', 'w2000', 'sens', '')

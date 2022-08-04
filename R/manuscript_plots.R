@@ -3,16 +3,17 @@ library(sf)
 
 source.cols <- c('Dolphins' = 'tomato',#'grey60', 
                  'Pelicans' = 'firebrick2', #'#1D8D2A', 
-                 'Diving birds' = 'firebrick', #'#AA7601',
+                 'Gulls & Terns' = 'firebrick', #'#AA7601',
                  'Fishing' = 'royalblue')
 
 nbins <- 30
 
 rename_prey <- function(prey.vec) {
   temp <- stringr::str_replace_all(string = prey.vec, pattern = 'croaker.spot.perch',
-                               replacement = 'sm.scianids') %>%
+                               replacement = 'sm.sciaenids') %>%
     stringr::str_replace_all(pattern = '\\.', replacement = '. ') %>%
     stringr::str_replace_all(pattern = 'blue.', replacement = 'blue') %>%
+    stringr::str_replace_all(pattern = 'panaeid', replacement = 'penaeid') %>%
     stringr::str_to_title()
   
   # order levels so that adults and juveniles of a species are next to each other
@@ -40,11 +41,11 @@ get_indirect_res <- function(predation.arr, fishing.arr) {
   indirect.res <- reshape2::melt(10*predation.arr) %>%
     as_tibble() %>%
     rename(Prey = biomass.i, Source = r.j, iter = Var3, change = value) %>%
-    mutate(Source = case_when(Source == 'diving.birds' ~ 'Diving birds',
+    mutate(Source = case_when(Source == 'diving.birds' ~ 'Gulls & Terns',
                               TRUE ~ stringr::str_to_title(Source))) %>% 
     bind_rows(fishing) %>%
     mutate(Source = factor(Source, levels = c('Dolphins', 'Pelicans', 
-                                              'Diving birds', 'Fishing')),
+                                              'Gulls & Terns', 'Fishing')),
            Prey = rename_prey(Prey))
   return(indirect.res)
 }
@@ -89,12 +90,12 @@ as_tibble(mort.mat) %>%
   bind_cols(Prey = rownames(mort.mat)) %>%
   rename(Dolphins = dolphins,
          Pelicans = pelicans,
-         `Diving birds` = diving.birds,
+         `Gulls & Terns` = diving.birds,
          Fishing = V4) %>%
   tidyr::pivot_longer(cols = Dolphins:Fishing, names_to = 'Source', 
                       values_to = 'mort.pct') %>%
   mutate(Source = factor(Source, levels = c('Dolphins', 'Pelicans', 
-                                            'Diving birds', 'Fishing')),
+                                            'Gulls & Terns', 'Fishing')),
          Prey =  rename_prey(Prey)) %>%
   ggplot() +
   geom_col(aes(x = Prey, fill = Source, y = mort.pct)) +
@@ -126,9 +127,9 @@ get_indirect_res(Jr.inv.std, fishing.res) %>%
 #  group_walk(~ pairs(.x, main = .y$Prey))
   group_by(iter, .add = FALSE) %>%
   mutate(n_remaining = n()) %>% 
-  filter(n_remaining ==10) %>%  nrow()/10
+  filter(n_remaining ==10) %>% # nrow()/10
   select(Prey:Fishing) %>%
-  tidyr::pivot_longer(cols = Dolphins:`Diving birds`, 
+  tidyr::pivot_longer(cols = Dolphins:`Gulls & Terns`, 
                       names_to = 'Source', values_to = 'change') %>%
   group_by(Prey, .add = FALSE) %>%
   group_map(function(.x, .y)
@@ -159,9 +160,9 @@ get_indirect_res(Jr.inv.std.combined, fishing.res.combined) %>%
   filter(if_all(.cols = Dolphins_rank:Fishing_rank, ~ .x > 0.025 & .x < 0.975)) %>%
   group_by(iter, .add = FALSE) %>%
   mutate(n_remaining = n()) %>% 
-  filter(n_remaining == 5) %>% #nrow()/5
+  filter(n_remaining == 5) %>% # nrow()/5
   select(Prey:Fishing) %>%
-  tidyr::pivot_longer(cols = Dolphins:`Diving birds`, 
+  tidyr::pivot_longer(cols = Dolphins:`Gulls & Terns`, 
                       names_to = 'Source', values_to = 'change') %>%
   group_by(Prey, .add = FALSE) %>%
   group_map(function(.x, .y)
@@ -200,7 +201,10 @@ group_by(yy, Prey, Source) %>%
   filter(low > 0 | high < 0)
 
 png('Figs/foodweb.png', width = 7, height = 7, units = 'in', res = 500)
-test$Group <- gsub('croaker.spot.perch', 'sm.sciaenid', test$Group)
+test$Group <- gsub('croaker.spot.perch', 'sm.sciaenid', test$Group) %>%
+  gsub('diving.birds', 'gulls.terns', .) %>%
+  gsub('marsh.birds', 'wading.birds', .) %>%
+  gsub('panaeid', 'penaeid', .)
 ggwebplot(test, labels = TRUE, point.size = 2, text.size = 4, max.overlaps = 15) +
   theme_classic() +
   theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
