@@ -53,17 +53,17 @@ get_indirect_res <- function(predation.arr, fishing.arr) {
 round_median <- function(x) {
   round(median(x), 2) 
 }
-make_indirect_figure <- function(indirect.res) {
+make_indirect_figure <- function(indirect.res, cols = source.cols) {
   plot.obj <- indirect.res %>%
     ggplot(aes(x = Prey, fill = Source, y = change)) +
     geom_hline(yintercept = 0) +
     geom_bar(stat = 'summary', fun.data = summary_func, 
              position = position_dodge(width = 1)) +
-    # stat_summary(aes(label=..y..), geom = 'text', fun = round_median, 
+    # stat_summary(aes(label=..y..), geom = 'text', fun = round_median,
     #              position = position_dodge(width = 1)) +
     geom_linerange(stat = 'summary', fun.data = summary_func, 
                    position = position_dodge(width = 1)) +
-    scale_fill_manual(values = source.cols) +
+    scale_fill_manual(values = cols) +
     theme_classic() +
     theme(axis.text.x = element_text(angle = 45, vjust = .5), 
           plot.margin = unit(c(5.5, 5.5, 7, 5.5), units = 'points')) +
@@ -115,6 +115,27 @@ purrr::map2(.x = list(Jr.inv.std, Jr.inv.std.combined),
   purrr::map(.f = make_indirect_figure) %>%
   cowplot::plot_grid(plotlist = ., ncol = 1, labels = list('a)', 'b)'))
 dev.off()
+
+png('Figs/indirect_all_preds.png', res=1000, height=8, width=9, units='in')
+purrr::map(list(separated = list(pred.all.res, fishing.res),
+                combined = list(pred.all.res.combined, fishing.res.combined)),
+           .f = function(.x) {
+             predation <- reshape2::melt(-1 * .x[[1]] * 100) %>%
+               as_tibble() %>%
+               rename(Prey = Var1, iter = Var2, change = value) %>%
+               mutate(Source = 'Predation')
+             fishing <- reshape2::melt(-1 * .x[[2]] * 100) %>%
+               as_tibble() %>%
+               rename(Prey = Var1, iter = Var2, change = value) %>%
+               mutate(Source = 'Fishing')
+             bind_rows(predation, fishing) %>%
+               mutate(Prey = rename_prey(Prey))
+           }) %>%
+  purrr::map(make_indirect_figure, cols = c(Fishing = 'royalblue', Predation = 'Red')) %>%
+  cowplot::plot_grid(plotlist = ., ncol = 1, labels = list('a)', 'b)'))
+dev.off()
+
+make_indirect_figure(temp[[1]], cols = c(Fishing = 'royalblue', Predation = 'Red'))
 
 png('Figs/indirect_comparisons95.png', width = 7, height = 10, units = 'in', res = 500)
 get_indirect_res(Jr.inv.std, fishing.res) %>%
@@ -193,11 +214,11 @@ yy <- purrr::map2(.x = list(Jr.inv.std, Jr.inv.std.combined),
               .f = ~ get_indirect_res(.x, .y))[[2]]
 
 group_by(xx, Prey, Source) %>%
-  summarize(median(change), low = quantile(change, 0.25), high = quantile(change, 0.75)) %>% 
+  summarize(median(change), low = quantile(change, .1), high = quantile(change, 0.9)) %>% 
   filter(low > 0 | high < 0)
 
 group_by(yy, Prey, Source) %>%
-  summarize(median(change), low = quantile(change, 0.25), high = quantile(change, 0.75)) %>% 
+  summarize(median(change), low = quantile(change, 0.1), high = quantile(change, 0.9)) %>% 
   filter(low > 0 | high < 0)
 
 png('Figs/foodweb.png', width = 7, height = 7, units = 'in', res = 500)

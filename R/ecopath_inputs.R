@@ -1,4 +1,4 @@
-# devtools::install_github(repo = 'okenk/Rpath', ref = before_stanza_changes)
+# devtools::install_github(repo = 'okenk/Rpath', ref = 'before_stanza_changes')
 # To run, must install Rpath version before commit 8735a8383d888bced13247dcd60149bcc93d2185
 # After that commit, Rpath can only handle leading stanzas that are last.
 # The before_stanza_changes branch on okenk fork also includes better plotting functions

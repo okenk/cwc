@@ -92,7 +92,7 @@ cite.mat['Gar',] <- c('', 'c2022', 'm2009', 'p1998', rpath., 'c2022')
 cite.mat['Stingray',] <- c('', 'c2022', 's1972', 'd2016', rpath., '')
 cite.mat['Gulls & Terns',] <- c('', 'g2012', 'g2012', 'g2012', rpath., '')
 cite.mat['Pelicans',] <- c('', 'g2012', 'g2012', 'g2012', rpath., '')
-cite.mat['Marsh Birds',] <- c('', 'd2014', 'd2014', 'd2014', rpath., '')
+cite.mat['Wading Birds',] <- c('', 'd2014', 'd2014', 'd2014', rpath., '')
 cite.mat['Dolphins',] <- c('', 'm2017', 'm2017', 'b2017', rpath., '')
 cite.mat['Killifishes',] <- c('', d2017, d2017, d2017, rpath., '')
 cite.mat['Juv Penaeids',] <- c(lead, d2017, d2017, d2017, rpath., '')
@@ -136,7 +136,9 @@ apply(cite.mat, 2, function(x)
   relocate(GE, .after = EE) %>%
   rename(TP = TL,
          `Biomass\\\n(g/m$^2$)` = Biomass,
-         `Removals\\\n(g/m$^2$)` = Removals) %>%
+         `PB\\\n(1/yr)` = PB,
+         `QB\\\n(1/yr)` = QB,
+         `Removals\\\n(g/m$^2$/yr)` = Removals) %>%
   knitr::kable()
 
 citations %>%

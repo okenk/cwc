@@ -64,6 +64,7 @@ Jr.inv <- lapply(Jr.ls, function(Jr.i) {
 temp <- sapply(Jr.inv, function(xx) xx[1,1]) %>% is.na() %>% sum()
 print(paste(temp, 'non-invertible Jacobians'))
 
+# Fishing
 dx.dE <- sapply(Jr.inv, function(Jr.inv.i) Jr.inv.i %*% 
                   matrix(selectivity, ncol=1))
 rownames(dx.dE) <- test$Group[test$type <= 1]
@@ -71,7 +72,8 @@ rownames(dx.dE) <- test$Group[test$type <= 1]
 fishing.res <- dx.dE[grps.of.interest,] %>%
 apply(2, function(xx) xx /
         test$Biomass[sapply(grps.of.interest, function(xx) which(test$Group==xx))])
-      
+
+# Predation      
 Jr.inv.arr <- sapply(Jr.inv, identity, simplify = 'array') 
 dimnames(Jr.inv.arr) <- list(biomass.i = test$Group[test$type <= 1],
                              r.j = test$Group[test$type <= 1],
@@ -90,6 +92,7 @@ for(prey in grps.of.interest) {
   }
 }
 
+# Fishing combined groups
 F.living.combined <- with(combined.mod, 
                           (rowSums(Landings + Discards)/Biomass)[type <= 1])
 # Calculate Jacobian of r vector
@@ -129,7 +132,42 @@ for(prey in grps.of.interest.combined) {
   }
 }
 
+# All predators at once, unaggregated groups
+pred.pb <- data.frame(test[-(1:4)]) %>%
+  dplyr::filter(type <= 1) %>%
+  dplyr::mutate(pred.pb = ifelse(Group %in% c('dolphins', 'pelicans', 'diving.birds'), 
+                                 PB, 0)) %>%
+  with(pred.pb)
 
+predation.decline <- pred.pb/effort
+
+dx.dE.pred <- sapply(Jr.inv, function(Jr.inv.i) Jr.inv.i %*% 
+                  matrix(predation.decline, ncol=1))
+rownames(dx.dE.pred) <- test$Group[test$type <= 1]
+
+pred.all.res <- dx.dE.pred[grps.of.interest,] %>%
+  apply(2, function(xx) xx /
+          test$Biomass[sapply(grps.of.interest, function(xx) which(test$Group==xx))])
+
+# All predators at once, aggregated groups
+pred.pb.combined <- data.frame(combined.mod[-(1:4)]) %>%
+  dplyr::filter(type <= 1) %>%
+  dplyr::mutate(pred.pb = ifelse(Group %in% c('dolphins', 'pelicans', 'diving.birds'), 
+                                 PB, 0)) %>%
+  with(pred.pb)
+
+predation.decline.combined <- pred.pb.combined/effort
+
+dx.dE.pred.combined <- sapply(Jr.inv.combined, function(Jr.inv.i) Jr.inv.i %*% 
+                       matrix(predation.decline.combined, ncol=1))
+rownames(dx.dE.pred.combined) <- combined.mod$Group[combined.mod$type <= 1]
+
+pred.all.res.combined <- dx.dE.pred.combined[grps.of.interest.combined,] %>%
+  apply(2, function(xx) xx /
+          combined.mod$Biomass[sapply(grps.of.interest.combined, function(xx) which(combined.mod$Group==xx))])
+
+
+## Direct mortality analysis
 consump.ls <- calc_consumption(test)
 Mpred.mat <- apply(consump.ls$consump, 2, function(xx) xx/test$Biomass[test$type != 3])
 rownames(Mpred.mat) <- colnames(Mpred.mat) <- test$Group[test$type != 3]
@@ -140,7 +178,6 @@ mort.mat <- cbind(Mpred.mat[grps.of.interest,
                             c('dolphins', 'pelicans', 'diving.birds')],
                   F.living[grps.of.interest]) /
   test$PB[sapply(grps.of.interest, function(xx) which(test$Group==xx))]
-
 
 
 

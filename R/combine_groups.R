@@ -31,7 +31,7 @@ combine_groups <- function(rpath.mod, grp.names, combined.name) {
     combined.mod[[model.variable]][name.indexes[1]] <- NA
   }
   
-  # Add biomassesu
+  # Add biomasses
   combined.mod$Biomass <- remove_rows_rename(name.indexes, 
                                              rpath.mod$Biomass,
                                              combined.mod$Group)
