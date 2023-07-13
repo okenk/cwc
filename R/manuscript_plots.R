@@ -23,7 +23,8 @@ rename_prey <- function(prey.vec) {
              stringr::str_sub(unique(temp), start = 6))]) %>%
       return()
   } else {
-    return(temp)
+    factor(temp) %>%
+      return()
   }
 }
 
@@ -56,6 +57,9 @@ round_median <- function(x) {
 make_indirect_figure <- function(indirect.res, cols = source.cols) {
   plot.obj <- indirect.res %>%
     ggplot(aes(x = Prey, fill = Source, y = change)) +
+    geom_tile(data = data.frame(x = factor(levels(indirect.res$Prey),
+                                           levels = levels(indirect.res$Prey))[c(FALSE, TRUE)]),
+              aes(x = x, y = 0), fill = 'gray90', width = 1, height = Inf) +
     geom_hline(yintercept = 0) +
     geom_bar(stat = 'summary', fun.data = summary_func, 
              position = position_dodge(width = 1)) +
@@ -64,6 +68,7 @@ make_indirect_figure <- function(indirect.res, cols = source.cols) {
     geom_linerange(stat = 'summary', fun.data = summary_func, 
                    position = position_dodge(width = 1)) +
     scale_fill_manual(values = cols) +
+    scale_x_discrete(limits = levels(indirect.res$Prey)) + 
     theme_classic() +
     theme(axis.text.x = element_text(angle = 45, vjust = .5), 
           plot.margin = unit(c(5.5, 5.5, 7, 5.5), units = 'points')) +
@@ -134,8 +139,6 @@ purrr::map(list(separated = list(pred.all.res, fishing.res),
   purrr::map(make_indirect_figure, cols = c(Fishing = 'royalblue', Predation = 'Red')) %>%
   cowplot::plot_grid(plotlist = ., ncol = 1, labels = list('a)', 'b)'))
 dev.off()
-
-make_indirect_figure(temp[[1]], cols = c(Fishing = 'royalblue', Predation = 'Red'))
 
 png('Figs/indirect_comparisons95.png', width = 7, height = 10, units = 'in', res = 500)
 get_indirect_res(Jr.inv.std, fishing.res) %>%
@@ -226,7 +229,8 @@ test$Group <- gsub('croaker.spot.perch', 'sm.sciaenid', test$Group) %>%
   gsub('diving.birds', 'gulls.terns', .) %>%
   gsub('marsh.birds', 'wading.birds', .) %>%
   gsub('panaeid', 'penaeid', .)
-ggwebplot(test, labels = TRUE, point.size = 2, text.size = 4, max.overlaps = 15) +
+ggwebplot(test, labels = TRUE, point.size = 2, text.size = 4, max.overlaps = 15,
+          fleets = TRUE) +
   theme_classic() +
   theme(axis.ticks.x = element_blank(), axis.text.x = element_blank())
 dev.off()

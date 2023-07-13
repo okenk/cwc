@@ -50,7 +50,7 @@ citations <- tibble(longname = c('De Mutsert et al. 2017',
          shortname = paste0(firstletter, year)) %>%
    select(-firstletter, -year) %>%
   mutate(superscript = as.character(1:n())) %>%
-  bind_rows(tibble(longname = c('Leading stanza', 'Solved by Rpath', 'Sensitivity of results to this paramter was minimal', ''), 
+  bind_rows(tibble(longname = c('Leading stanza', 'Solved by Rpath', 'Sensitivity of results to this parameter was minimal', ''), 
                    shortname = c('lead', 'rpath', 'sens', ''),
                    superscript = c('+', '*', '@', '')))
 
