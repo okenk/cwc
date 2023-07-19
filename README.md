@@ -17,4 +17,4 @@ commits do not allow for leading stanzas that are not the oldest age group. Inst
 
 The code to run the generalized equilibrium model is [here](https://github.com/okenk/cwc/blob/main/R/runTradeOffmodel.R).
 
-If you have any questions, feel free to contact me with a [github issue](https://github.com/okenk/cwc/issues) or [by email](kiva.oken@gnoaa.gov).
+If you have any questions, feel free to contact me with a [github issue](https://github.com/okenk/cwc/issues) or [by email](mailto:kiva.oken@gnoaa.gov).
