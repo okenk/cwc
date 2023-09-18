@@ -2,9 +2,10 @@
 
 This includes the code and model files for the following publication:
 
-Oken, K.L., K.W. Able, K. de Mutsert, F.J. Fodrie, P.C. López-Duarte, C.W. Martin, M.J. McCann, J.A. Olin, M.J. Polito, B.J. Roberts, O.P. Jensen. (Accepted) 
-Fishery closures, more than predator release, increased persistence of nearshore fishes and invertebrates to the Deepwater Horizon oil spill. _Estuaries and Coasts_. 
-Preprint at: 10.31219/osf.io/csfqn
+Oken, K.L., K.W. Able, K. de Mutsert, F.J. Fodrie, P.C. López-Duarte, C.W. Martin, M.J. McCann, J.A. Olin, M.J. Polito, B.J. Roberts, O.P. Jensen. (2023) 
+Fishery closures, more than predator release, increased persistence of nearshore fishes and invertebrates to the Deepwater Horizon oil spill. _Estuaries and Coasts_. https://doi.org/10.1007/s12237-023-01246-2
+
+There is a freely available preprint at https://doi.org/10.31219/osf.io/csfqn
 
 This repository contains a number of model files generated during development. The final model files are:
 * [Model](https://github.com/okenk/cwc/blob/main/Data/GroupInfo_data_deleted.csv)
